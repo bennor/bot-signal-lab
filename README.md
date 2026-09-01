@@ -55,11 +55,3 @@ TARGET_URL=https://your-project.vercel.app pnpm simulate
 ```
 
 A fake Googlebot user agent should not be presented as a genuinely verified crawler because Vercel also checks network or cryptographic identity. The button is an API payload demonstration.
-
-## Demo sequence
-
-1. Show Bot Protection set to Log in the Vercel Firewall.
-2. Open the application and select **Human browser** to show an API request without bot headers.
-3. Select each bot button to show the overridden user agent and raw bot headers returned by the same inspection API.
-4. Review the **How this works** code sample.
-5. Open Vercel Firewall traffic to show the logged bot matches.
