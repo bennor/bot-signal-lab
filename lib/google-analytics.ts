@@ -1,14 +1,19 @@
-import type { BotClassification, TrafficResult } from "./traffic";
+import { readBotHeader, type BotHeaders, type TrafficResult } from "./traffic";
 
-type AnalyticsStatus = TrafficResult["analytics"];
+type AnalyticsStatus = TrafficResult["googleAnalytics"];
 
 export async function reportTrafficToGoogleAnalytics(input: {
   collectionPoint: "server_page" | "server_api";
-  classification: BotClassification;
-  request: TrafficResult["request"];
+  botHeaders: BotHeaders;
+  userAgent: string;
 }): Promise<AnalyticsStatus> {
   const measurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
   const apiSecret = process.env.GA_API_SECRET;
+  const category = readBotHeader(input.botHeaders, "category");
+  const name = readBotHeader(input.botHeaders, "name");
+  const verified =
+    readBotHeader(input.botHeaders, "verified-bot") ??
+    readBotHeader(input.botHeaders, "verified");
 
   if (!measurementId || !apiSecret) {
     return { enabled: false, delivered: false };
@@ -26,14 +31,11 @@ export async function reportTrafficToGoogleAnalytics(input: {
             name: "bot_traffic_observed",
             params: {
               collection_point: input.collectionPoint,
-              is_bot: input.classification.isBot ? "yes" : "no",
-              bot_source: input.classification.source,
-              bot_category: input.classification.category,
-              bot_name: input.classification.name,
-              bot_verified: input.classification.verified,
-              request_method: input.request.method,
-              request_path: input.request.path,
-              user_agent_family: input.request.userAgentFamily,
+              is_bot: category || name ? "yes" : "no",
+              bot_category: category ?? "human_or_unclassified",
+              bot_name: name ?? "none",
+              bot_verified: verified ?? "not_applicable",
+              user_agent: input.userAgent.slice(0, 100),
               engagement_time_msec: 1,
             },
           },

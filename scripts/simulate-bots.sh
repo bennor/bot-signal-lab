@@ -12,33 +12,18 @@ run_scenario() {
   local bot_name="$4"
   local verified="$5"
 
-  local extra_headers=()
-  if [[ "${base_url}" == http://localhost:* || "${base_url}" == http://127.0.0.1:* ]]; then
-    extra_headers+=(
-      --header "x-demo-bot-category: ${category}"
-      --header "x-demo-bot-name: ${bot_name}"
-      --header "x-demo-bot-verified: ${verified}"
-    )
-  elif [[ -n "${DEMO_SIMULATION_TOKEN:-}" ]]; then
-    extra_headers+=(
-      --header "x-demo-token: ${DEMO_SIMULATION_TOKEN}"
-      --header "x-demo-bot-category: ${category}"
-      --header "x-demo-bot-name: ${bot_name}"
-      --header "x-demo-bot-verified: ${verified}"
-    )
-  fi
-
   printf '\n%s\n' "=== ${name} ==="
   curl --silent --show-error --request POST \
     --header "user-agent: ${user_agent}" \
-    "${extra_headers[@]}" \
+    --header "x-bot-category: ${category}" \
+    --header "x-bot-name: ${bot_name}" \
+    --header "x-bot-verified: ${verified}" \
     --write-out '\nHTTP %{http_code}\n' \
     "${endpoint}"
 }
 
 printf '%s\n' "Sending requests to ${endpoint}"
-printf '%s\n' "Local requests use clearly labelled synthetic classification headers."
-printf '%s\n' "Deployed requests rely on Vercel headers unless DEMO_SIMULATION_TOKEN is set."
+printf '%s\n' "Requests include the selected user agent and raw x-bot-* headers."
 
 run_scenario "Command-line client" "curl/8.7.1" "http_client" "curl" "false"
 run_scenario "Headless browser" "Mozilla/5.0 HeadlessChrome/128.0 Playwright" "automated_browser" "HeadlessChrome" "false"

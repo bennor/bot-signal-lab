@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { simulations, type TrafficResult } from "@/lib/traffic";
+import { simulations } from "@/lib/traffic";
 
 export const dynamic = "force-dynamic";
 
@@ -18,22 +18,14 @@ export async function POST(request: NextRequest) {
     method: "POST",
     headers: {
       "user-agent": simulation.userAgent,
-      "x-demo-user-agent-simulation": "1",
-      "x-simulation-name": simulation.label,
+      ...simulation.botHeaders,
     },
     cache: "no-store",
   });
-  const inspection = (await response.json()) as TrafficResult;
+  const inspection = await response.json();
 
-  return NextResponse.json(
-    {
-      scenario: {
-        id: simulation.id,
-        label: simulation.label,
-        outboundUserAgent: simulation.userAgent,
-      },
-      inspection,
-    },
-    { status: response.status, headers: { "cache-control": "no-store" } },
-  );
+  return NextResponse.json(inspection, {
+    status: response.status,
+    headers: { "cache-control": "no-store" },
+  });
 }

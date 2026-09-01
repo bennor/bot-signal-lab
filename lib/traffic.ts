@@ -1,28 +1,9 @@
-export type DetectionSource =
-  | "vercel-edge"
-  | "demo-simulation"
-  | "user-agent-simulation"
-  | "none";
-
-export type BotClassification = {
-  isBot: boolean;
-  source: DetectionSource;
-  category: string;
-  name: string;
-  verified: string;
-};
+export type BotHeaders = Record<string, string>;
 
 export type TrafficResult = {
-  timestamp: string;
-  requestId: string;
-  detection: BotClassification;
-  request: {
-    method: string;
-    path: string;
-    userAgent: string;
-    userAgentFamily: string;
-  };
-  analytics: {
+  userAgent: string;
+  botHeaders: BotHeaders;
+  googleAnalytics: {
     enabled: boolean;
     delivered: boolean;
   };
@@ -33,6 +14,7 @@ export type Simulation = {
   label: string;
   description: string;
   userAgent: string;
+  botHeaders: BotHeaders;
 };
 
 export const simulations: Simulation[] = [
@@ -41,96 +23,61 @@ export const simulations: Simulation[] = [
     label: "curl",
     description: "A command-line HTTP client with no browser runtime.",
     userAgent: "curl/8.7.1",
+    botHeaders: {
+      "x-bot-category": "http_client",
+      "x-bot-name": "curl",
+      "x-bot-verified": "false",
+    },
   },
   {
     id: "openai",
     label: "OpenAI GPTBot",
     description: "OpenAI's declared training crawler user agent.",
-    userAgent: "Mozilla/5.0 AppleWebKit/537.36; compatible; GPTBot/1.2; +https://openai.com/gptbot",
+    userAgent:
+      "Mozilla/5.0 AppleWebKit/537.36; compatible; GPTBot/1.2; +https://openai.com/gptbot",
+    botHeaders: {
+      "x-bot-category": "ai_crawler",
+      "x-bot-name": "GPTBot",
+      "x-bot-verified": "false",
+    },
   },
   {
     id: "googlebot-claim",
     label: "Googlebot claim",
     description: "A Googlebot user agent without Google's network identity.",
-    userAgent: "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+    userAgent:
+      "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+    botHeaders: {
+      "x-bot-category": "unverified_bot",
+      "x-bot-name": "Googlebot",
+      "x-bot-verified": "false",
+    },
   },
   {
     id: "headless-chrome",
     label: "Headless Chrome",
     description: "A browser controlled through Playwright or Puppeteer.",
-    userAgent: "Mozilla/5.0 AppleWebKit/537.36 HeadlessChrome/128.0.0.0 Safari/537.36",
+    userAgent:
+      "Mozilla/5.0 AppleWebKit/537.36 HeadlessChrome/128.0.0.0 Safari/537.36",
+    botHeaders: {
+      "x-bot-category": "automated_browser",
+      "x-bot-name": "Headless Chrome",
+      "x-bot-verified": "false",
+    },
   },
 ];
 
-export function classifyRequest(
-  requestHeaders: Pick<Headers, "get">,
-  allowSimulation = false,
-  localUserAgent?: string,
-): BotClassification {
-  const demoCategory = allowSimulation
-    ? requestHeaders.get("x-demo-bot-category")
-    : null;
-  const category =
-    demoCategory ?? requestHeaders.get("x-vercel-bot-category");
-  const name =
-    (allowSimulation ? requestHeaders.get("x-demo-bot-name") : null) ??
-    requestHeaders.get("x-vercel-bot-name");
-  const verified =
-    (allowSimulation ? requestHeaders.get("x-demo-bot-verified") : null) ??
-    requestHeaders.get("x-vercel-verified-bot");
-
-  if (!category && !name && verified === null) {
-    if (localUserAgent) {
-      return classifyLocalUserAgent(localUserAgent);
-    }
-
-    return {
-      isBot: false,
-      source: "none",
-      category: "human_or_unclassified",
-      name: "None",
-      verified: "not_applicable",
-    };
-  }
-
-  return {
-    isBot: true,
-    source: demoCategory ? "demo-simulation" : "vercel-edge",
-    category: category ?? "unknown",
-    name: name ?? "Unknown bot",
-    verified: verified ?? "unknown",
-  };
+export function extractBotHeaders(headers: Headers): BotHeaders {
+  return Object.fromEntries(
+    [...headers.entries()].filter(
+      ([name]) =>
+        name.startsWith("x-vercel-bot-") || name.startsWith("x-bot-"),
+    ),
+  );
 }
 
-function classifyLocalUserAgent(userAgent: string): BotClassification {
-  if (/gptbot/i.test(userAgent)) {
-    return localClassification("unverified_bot", "GPTBot");
-  }
-  if (/googlebot/i.test(userAgent)) {
-    return localClassification("unverified_bot", "Googlebot");
-  }
-  if (/headlesschrome|playwright|puppeteer/i.test(userAgent)) {
-    return localClassification("automated_browser", "Headless Chrome");
-  }
-  if (/curl|python-requests|httpie/i.test(userAgent)) {
-    return localClassification("http_client", userAgent.split("/")[0]);
-  }
-
-  return {
-    isBot: false,
-    source: "none",
-    category: "human_or_unclassified",
-    name: "None",
-    verified: "not_applicable",
-  };
-}
-
-function localClassification(category: string, name: string): BotClassification {
-  return {
-    isBot: true,
-    source: "user-agent-simulation",
-    category,
-    name,
-    verified: "not_verified_locally",
-  };
+export function readBotHeader(botHeaders: BotHeaders, field: string) {
+  return (
+    botHeaders[`x-vercel-bot-${field}`] ?? botHeaders[`x-bot-${field}`] ?? null
+  );
 }

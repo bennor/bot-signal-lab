@@ -1,10 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  simulations,
-  type BotClassification,
-} from "@/lib/traffic";
+import { readBotHeader, simulations, type TrafficResult } from "@/lib/traffic";
 
 declare global {
   interface Window {
@@ -14,38 +11,30 @@ declare global {
 
 export function TrafficDashboard({
   analyticsEnabled,
-  initialClassification,
-  initialTimestamp,
+  initialResult,
 }: {
   analyticsEnabled: boolean;
-  initialClassification: BotClassification;
-  initialTimestamp: string;
+  initialResult: TrafficResult;
 }) {
-  const [selected, setSelected] = useState<unknown>(() => ({
-    timestamp: initialTimestamp,
-    requestId: "initial-page-request",
-    detection: initialClassification,
-    request: {
-      method: "GET",
-      path: "/",
-      userAgent: "Browser page request",
-      userAgentFamily: "Browser",
-    },
-    analytics: { enabled: analyticsEnabled, delivered: false },
-  }));
+  const [selected, setSelected] = useState<TrafficResult>(initialResult);
   const [loading, setLoading] = useState(false);
   const [activeScenario, setActiveScenario] = useState<string | null>(null);
 
   useEffect(() => {
+    const category = readBotHeader(initialResult.botHeaders, "category");
+    const name = readBotHeader(initialResult.botHeaders, "name");
+    const verified =
+      readBotHeader(initialResult.botHeaders, "verified-bot") ??
+      readBotHeader(initialResult.botHeaders, "verified");
+
     window.gtag?.("event", "bot_traffic_observed", {
       collection_point: "browser_page",
-      is_bot: initialClassification.isBot ? "yes" : "no",
-      bot_source: initialClassification.source,
-      bot_category: initialClassification.category,
-      bot_name: initialClassification.name,
-      bot_verified: initialClassification.verified,
+      is_bot: category || name ? "yes" : "no",
+      bot_category: category ?? "human_or_unclassified",
+      bot_name: name ?? "none",
+      bot_verified: verified ?? "not_applicable",
     });
-  }, [initialClassification]);
+  }, [initialResult]);
 
   async function inspectRequest() {
     setLoading(true);
@@ -174,22 +163,16 @@ export function TrafficDashboard({
           <code>{`import { NextRequest } from "next/server";
 
 export async function POST(request: NextRequest) {
-  const botCategory = request.headers.get("x-vercel-bot-category");
-  const botName = request.headers.get("x-vercel-bot-name");
-  const botVerified = request.headers.get("x-vercel-verified-bot");
+  const botHeaders = Object.fromEntries(
+    [...request.headers.entries()].filter(([name]) =>
+      name.startsWith("x-vercel-bot-") || name.startsWith("x-bot-")
+    )
+  );
 
-  const event = {
-    name: "bot_traffic_observed",
-    params: {
-      is_bot: Boolean(botCategory || botName),
-      bot_category: botCategory ?? "human_or_unclassified",
-      bot_name: botName ?? "none",
-      bot_verified: botVerified ?? "not_applicable",
-    },
-  };
-
-  // Send event through gtag or GA4 Measurement Protocol.
-  return Response.json(event);
+  return Response.json({
+    userAgent: request.headers.get("user-agent"),
+    botHeaders,
+  });
 }`}</code>
         </pre>
       </section>
