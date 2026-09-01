@@ -6,8 +6,8 @@ This demo does not use the Vercel BotID product.
 
 ## Documentation
 
-- [Security Plus documentation](https://vercel.com/docs/vercel-firewall/security-plus)
-- [Bot visibility and classification categories](https://vercel.com/docs/bot-management#bot-visibility-and-classification-with-security-plus)
+- [Bot Management documentation](https://vercel.com/docs/bot-management)
+- [Bot traffic in Observability](https://vercel.com/docs/observability/insights#edge-requests)
 
 ## Request flow
 
@@ -35,8 +35,9 @@ The five buttons exercise two paths:
 - The complete `/api/traffic` response is rendered below the buttons. It contains only the user agent and genuine `x-vercel-bot-*` headers added by Vercel.
 - The **How this works** section shows the Route Handler code needed to read the Vercel headers.
 - The TypeScript example uses token-based syntax highlighting and line numbers.
+- API responses use JSON syntax highlighting and line numbers.
 
-Vercel classification headers do not exist locally. The four simulation routes override only `User-Agent`. On a Vercel deployment, Bot Protection classifies each request and `/api/traffic` returns the native `x-vercel-bot-*` headers without remapping.
+Vercel classification headers do not exist locally. The four simulation routes override only `User-Agent`. On a Vercel deployment with Security+ enabled, Vercel classifies each request at the edge and `/api/traffic` returns the native `x-vercel-bot-*` headers without remapping.
 
 The command-line simulator also sends only the selected user agents:
 

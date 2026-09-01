@@ -64,12 +64,12 @@ export function TrafficDashboard() {
         <div>
           <div className="project-brand">
             <Image src="/icon.svg" alt="" width={28} height={28} priority />
-            <span className="eyebrow">Vercel bot classification demonstration</span>
+            <span className="eyebrow">Security Plus</span>
           </div>
           <h1>Bot Signal Lab</h1>
           <p className="intro">
-            Send requests with distinct user agents, read Vercel&apos;s classification
-            headers, and inspect the raw values available to your application.
+            Send a request, then inspect the bot headers Vercel passed to the
+            application.
           </p>
         </div>
       </header>
@@ -87,23 +87,23 @@ export function TrafficDashboard() {
           <div>
             <h2>Traffic profiles</h2>
             <p>
-              The browser calls the inspection API directly. The other buttons make a
-              server-side request with the displayed user agent.
+              The first button calls <code>/api/traffic</code> from this browser. The
+              others call it from the server with a different <code>User-Agent</code>.
             </p>
             <div className="resource-links">
               <a
-                href="https://vercel.com/docs/vercel-firewall/security-plus"
+                href="https://vercel.com/docs/bot-management"
                 target="_blank"
                 rel="noreferrer"
               >
-                Security Plus documentation
+                Bot Management documentation
               </a>
               <a
-                href="https://vercel.com/docs/bot-management#bot-visibility-and-classification-with-security-plus"
+                href="https://vercel.com/docs/observability/insights#edge-requests"
                 target="_blank"
                 rel="noreferrer"
               >
-                Bot category reference
+                Bot traffic in Observability
               </a>
             </div>
           </div>
@@ -119,7 +119,7 @@ export function TrafficDashboard() {
             <small>
               {loading && activeScenario === null
                 ? "Sending request..."
-                : "A normal fetch from the running application."}
+                : "A browser fetch to /api/traffic."}
             </small>
           </button>
           {simulations.map((simulation) => (
@@ -147,10 +147,10 @@ export function TrafficDashboard() {
             <span className="section-number">02</span>
             <div>
               <h2>Inspection API response</h2>
-              <p>The complete JSON returned by the local API appears below.</p>
+              <p>Response from <code>/api/traffic</code>.</p>
             </div>
           </div>
-          <pre>{JSON.stringify(selected, null, 2)}</pre>
+          <CodeBlock code={JSON.stringify(selected, null, 2)} language="json" />
         </section>
       ) : null}
 
@@ -160,33 +160,13 @@ export function TrafficDashboard() {
           <div>
             <h2>How this works</h2>
             <p>
-              Security Plus forwards bot classification headers to your application
-              code. Each matched request includes <code>x-vercel-bot-category</code>,{" "}
-              <code>x-vercel-bot-name</code>, and <code>x-vercel-verified-bot</code>
-              {"."} Read the raw values in a Route Handler, then attach them to any
-              analytics or logging system that needs them.
+              Security Plus passes <code>x-vercel-bot-category</code>,{" "}
+              <code>x-vercel-bot-name</code>, and <code>x-vercel-verified-bot</code> to
+              application code. This route reads them without changing the values.
             </p>
           </div>
         </div>
-        <Highlight theme={themes.github} code={codeSample} language="tsx">
-          {({ className, style, tokens, getLineProps, getTokenProps }) => (
-            <pre className={`${className} code-sample`} style={style}>
-              {tokens.map((line, index) => (
-                <span key={`line-${index}`} {...getLineProps({ line })} className="code-line">
-                  <span className="line-number">{index + 1}</span>
-                  <span>
-                    {line.map((token, tokenIndex) => (
-                      <span
-                        key={`token-${index}-${tokenIndex}`}
-                        {...getTokenProps({ token })}
-                      />
-                    ))}
-                  </span>
-                </span>
-              ))}
-            </pre>
-          )}
-        </Highlight>
+        <CodeBlock code={codeSample} language="tsx" />
       </section>
 
       <footer>
@@ -194,5 +174,35 @@ export function TrafficDashboard() {
         also verifies network or cryptographic identity.
       </footer>
     </main>
+  );
+}
+
+function CodeBlock({
+  code,
+  language,
+}: {
+  code: string;
+  language: "json" | "tsx";
+}) {
+  return (
+    <Highlight theme={themes.github} code={code} language={language}>
+      {({ className, style, tokens, getLineProps, getTokenProps }) => (
+        <pre className={`${className} code-sample`} style={style}>
+          {tokens.map((line, index) => (
+            <span key={`line-${index}`} {...getLineProps({ line })} className="code-line">
+              <span className="line-number">{index + 1}</span>
+              <span>
+                {line.map((token, tokenIndex) => (
+                  <span
+                    key={`token-${index}-${tokenIndex}`}
+                    {...getTokenProps({ token })}
+                  />
+                ))}
+              </span>
+            </span>
+          ))}
+        </pre>
+      )}
+    </Highlight>
   );
 }
