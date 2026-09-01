@@ -18,7 +18,6 @@ export async function POST(request: NextRequest) {
     method: "POST",
     headers: {
       "user-agent": simulation.userAgent,
-      ...simulation.botHeaders,
     },
     cache: "no-store",
   });

@@ -11,7 +11,6 @@ This demo does not use the Vercel BotID product.
 3. Security+ forwards classification data to the application through:
    - `x-vercel-bot-category`
    - `x-vercel-bot-name`
-   - `x-vercel-bot-status`
    - `x-vercel-verified-bot`
 4. The server reads those headers and makes them available to the page.
 
@@ -28,12 +27,13 @@ The five buttons exercise two paths:
 
 - **Human browser** calls the in-app `/api/traffic` inspection endpoint directly.
 - **curl**, **OpenAI GPTBot**, **Googlebot claim**, and **Headless Chrome** call `/api/simulate`. That server route makes a second request to `/api/traffic` with the selected `User-Agent` override.
-- The complete `/api/traffic` response is rendered below the buttons. It contains only the user agent and raw bot headers.
+- The complete `/api/traffic` response is rendered below the buttons. It contains only the user agent and genuine `x-vercel-bot-*` headers added by Vercel.
 - The **How this works** section shows the Route Handler code needed to read the Vercel headers.
+- The TypeScript example uses token-based syntax highlighting and line numbers.
 
-Vercel classification headers do not exist locally. The four simulation routes attach ordinary `x-bot-*` headers to the request. `/api/traffic` returns those raw headers unchanged. When Security+ adds native `x-vercel-bot-*` headers, they appear in the same object without remapping.
+Vercel classification headers do not exist locally. The four simulation routes override only `User-Agent`. On a Vercel deployment, Bot Protection classifies each request and `/api/traffic` returns the native `x-vercel-bot-*` headers without remapping.
 
-The command-line simulator uses the same raw header model:
+The command-line simulator also sends only the selected user agents:
 
 ```bash
 pnpm simulate

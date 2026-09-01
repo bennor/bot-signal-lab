@@ -226,10 +226,21 @@ pre {
 
 .code-sample {
   max-height: none;
-  background: #111111;
-  color: #ededed;
-  border-color: #111111;
+  background: var(--ds-background-200) !important;
+  color: var(--ds-gray-1000);
+  border-color: var(--ds-gray-400);
   font-size: 13px;
+}
+
+.code-line {
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  min-height: 20px;
+}
+
+.line-number {
+  color: var(--ds-gray-700);
+  user-select: none;
 }
 
 footer {

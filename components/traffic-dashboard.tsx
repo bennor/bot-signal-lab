@@ -1,7 +1,30 @@
 "use client";
 
 import { useState } from "react";
+import { Highlight, themes } from "prism-react-renderer";
 import { simulations, type TrafficResult } from "@/lib/traffic";
+
+const codeSample = `import { NextRequest } from "next/server";
+
+export async function POST(request: NextRequest) {
+  const vercelBotHeaders = [
+    "x-vercel-bot-category",
+    "x-vercel-bot-name",
+    "x-vercel-verified-bot",
+  ];
+
+  const botHeaders = Object.fromEntries(
+    vercelBotHeaders.flatMap((name) => {
+      const value = request.headers.get(name);
+      return value ? [[name, value]] : [];
+    })
+  );
+
+  return Response.json({
+    userAgent: request.headers.get("user-agent"),
+    botHeaders,
+  });
+}`;
 
 export function TrafficDashboard() {
   const [selected, setSelected] = useState<TrafficResult | null>(null);
@@ -51,7 +74,6 @@ export function TrafficDashboard() {
         <span>Headers inspected</span>
         <code>x-vercel-bot-category</code>
         <code>x-vercel-bot-name</code>
-        <code>x-vercel-bot-status</code>
         <code>x-vercel-verified-bot</code>
       </div>
 
@@ -118,39 +140,30 @@ export function TrafficDashboard() {
           <div>
             <h2>How this works</h2>
             <p>
-              Security+ can add <code>x-vercel-bot-category</code>,{" "}
-              <code>x-vercel-bot-name</code>, <code>x-vercel-bot-status</code>, and
-              {" "}
-              <code>x-vercel-verified-bot</code> before the request reaches your
-              application. Read the raw values in a Route Handler, then attach them
-              to any analytics or logging system that needs them.
+              Security Plus forwards bot classification headers to your application
+              code. Each matched request includes <code>x-vercel-bot-category</code>,{" "}
+              <code>x-vercel-bot-name</code>, and <code>x-vercel-verified-bot</code>
+              {"."} Read the raw values in a Route Handler, then attach them to any
+              analytics or logging system that needs them.
             </p>
           </div>
         </div>
-        <pre className="code-sample">
-          <code>{`import { NextRequest } from "next/server";
-
-export async function POST(request: NextRequest) {
-  const vercelBotHeaders = [
-    "x-vercel-bot-category",
-    "x-vercel-bot-name",
-    "x-vercel-bot-status",
-    "x-vercel-verified-bot",
-  ];
-
-  const botHeaders = Object.fromEntries(
-    vercelBotHeaders.flatMap((name) => {
-      const value = request.headers.get(name);
-      return value ? [[name, value]] : [];
-    })
-  );
-
-  return Response.json({
-    userAgent: request.headers.get("user-agent"),
-    botHeaders,
-  });
-}`}</code>
-        </pre>
+        <Highlight theme={themes.github} code={codeSample} language="tsx">
+          {({ className, style, tokens, getLineProps, getTokenProps }) => (
+            <pre className={`${className} code-sample`} style={style}>
+              {tokens.map((line, index) => (
+                <span {...getLineProps({ line })} className="code-line" key={index}>
+                  <span className="line-number">{index + 1}</span>
+                  <span>
+                    {line.map((token, tokenIndex) => (
+                      <span {...getTokenProps({ token })} key={tokenIndex} />
+                    ))}
+                  </span>
+                </span>
+              ))}
+            </pre>
+          )}
+        </Highlight>
       </section>
 
       <footer>
