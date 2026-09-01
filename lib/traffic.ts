@@ -3,10 +3,6 @@ export type BotHeaders = Record<string, string>;
 export type TrafficResult = {
   userAgent: string;
   botHeaders: BotHeaders;
-  googleAnalytics: {
-    enabled: boolean;
-    delivered: boolean;
-  };
 };
 
 export type Simulation = {
@@ -73,11 +69,5 @@ export function extractBotHeaders(headers: Headers): BotHeaders {
       ([name]) =>
         name.startsWith("x-vercel-bot-") || name.startsWith("x-bot-"),
     ),
-  );
-}
-
-export function readBotHeader(botHeaders: BotHeaders, field: string) {
-  return (
-    botHeaders[`x-vercel-bot-${field}`] ?? botHeaders[`x-bot-${field}`] ?? null
   );
 }

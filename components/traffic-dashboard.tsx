@@ -1,40 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { readBotHeader, simulations, type TrafficResult } from "@/lib/traffic";
+import { useState } from "react";
+import { simulations, type TrafficResult } from "@/lib/traffic";
 
-declare global {
-  interface Window {
-    gtag?: (...args: unknown[]) => void;
-  }
-}
-
-export function TrafficDashboard({
-  analyticsEnabled,
-  initialResult,
-}: {
-  analyticsEnabled: boolean;
-  initialResult: TrafficResult;
-}) {
-  const [selected, setSelected] = useState<TrafficResult>(initialResult);
+export function TrafficDashboard() {
+  const [selected, setSelected] = useState<TrafficResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [activeScenario, setActiveScenario] = useState<string | null>(null);
-
-  useEffect(() => {
-    const category = readBotHeader(initialResult.botHeaders, "category");
-    const name = readBotHeader(initialResult.botHeaders, "name");
-    const verified =
-      readBotHeader(initialResult.botHeaders, "verified-bot") ??
-      readBotHeader(initialResult.botHeaders, "verified");
-
-    window.gtag?.("event", "bot_traffic_observed", {
-      collection_point: "browser_page",
-      is_bot: category || name ? "yes" : "no",
-      bot_category: category ?? "human_or_unclassified",
-      bot_name: name ?? "none",
-      bot_verified: verified ?? "not_applicable",
-    });
-  }, [initialResult]);
 
   async function inspectRequest() {
     setLoading(true);
@@ -70,27 +42,18 @@ export function TrafficDashboard({
           <h1>Bot Signal Lab</h1>
           <p className="intro">
             Keep Bot Protection in Log mode, read Vercel&apos;s classification headers,
-            and attach the bot context to Google Analytics events.
+            and inspect the raw values available to your application.
           </p>
-        </div>
-        <div className={`status ${analyticsEnabled ? "online" : "offline"}`}>
-          <span className="status-dot" />
-          GA4 {analyticsEnabled ? "reporting enabled" : "reporting disabled"}
         </div>
       </header>
 
-      {!analyticsEnabled ? (
-        <aside className="analytics-warning" role="alert">
-          <strong>Google Analytics is not connected</strong>
-          <span>
-            Events are being previewed on this page but are not being sent. Set
-            {" "}
-            <code>NEXT_PUBLIC_GA_MEASUREMENT_ID</code> and <code>GA_API_SECRET</code>
-            {" "}
-            to enable reporting.
-          </span>
-        </aside>
-      ) : null}
+      <div className="header-key-list" aria-label="Vercel bot headers inspected">
+        <span>Headers inspected</span>
+        <code>x-vercel-bot-category</code>
+        <code>x-vercel-bot-name</code>
+        <code>x-vercel-bot-status</code>
+        <code>x-vercel-verified-bot</code>
+      </div>
 
       <section>
         <div className="section-heading">
@@ -136,16 +99,18 @@ export function TrafficDashboard({
         </div>
       </section>
 
-      <section className="result-section">
-        <div className="section-heading">
-          <span className="section-number">02</span>
-          <div>
-            <h2>Inspection API response</h2>
-            <p>The complete JSON returned by the local API appears below.</p>
+      {selected ? (
+        <section className="result-section">
+          <div className="section-heading">
+            <span className="section-number">02</span>
+            <div>
+              <h2>Inspection API response</h2>
+              <p>The complete JSON returned by the local API appears below.</p>
+            </div>
           </div>
-        </div>
-        <pre>{JSON.stringify(selected, null, 2)}</pre>
-      </section>
+          <pre>{JSON.stringify(selected, null, 2)}</pre>
+        </section>
+      ) : null}
 
       <section className="how-it-works">
         <div className="section-heading">
@@ -153,9 +118,12 @@ export function TrafficDashboard({
           <div>
             <h2>How this works</h2>
             <p>
-              Security+ adds bot classification headers before the request reaches
-              your application. Read them in a Route Handler, then attach the values
-              to the GA event you already send.
+              Security+ can add <code>x-vercel-bot-category</code>,{" "}
+              <code>x-vercel-bot-name</code>, <code>x-vercel-bot-status</code>, and
+              {" "}
+              <code>x-vercel-verified-bot</code> before the request reaches your
+              application. Read the raw values in a Route Handler, then attach them
+              to any analytics or logging system that needs them.
             </p>
           </div>
         </div>
@@ -163,10 +131,18 @@ export function TrafficDashboard({
           <code>{`import { NextRequest } from "next/server";
 
 export async function POST(request: NextRequest) {
+  const vercelBotHeaders = [
+    "x-vercel-bot-category",
+    "x-vercel-bot-name",
+    "x-vercel-bot-status",
+    "x-vercel-verified-bot",
+  ];
+
   const botHeaders = Object.fromEntries(
-    [...request.headers.entries()].filter(([name]) =>
-      name.startsWith("x-vercel-bot-") || name.startsWith("x-bot-")
-    )
+    vercelBotHeaders.flatMap((name) => {
+      const value = request.headers.get(name);
+      return value ? [[name, value]] : [];
+    })
   );
 
   return Response.json({
