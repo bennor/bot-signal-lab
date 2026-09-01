@@ -1,13 +1,18 @@
 # Bot Signal Lab
 
-A small Next.js application showing how to run Vercel Bot Protection in Log mode and read the resulting bot classification headers in application code.
+A small Next.js application showing how to read Vercel bot classification headers in application code.
 
 This demo does not use the Vercel BotID product.
+
+## Documentation
+
+- [Security Plus documentation](https://vercel.com/docs/vercel-firewall/security-plus)
+- [Bot visibility and classification categories](https://vercel.com/docs/bot-management#bot-visibility-and-classification-with-security-plus)
 
 ## Request flow
 
 1. A request reaches Vercel's edge.
-2. Bot Protection evaluates it in Log mode. The request is recorded but not blocked.
+2. Vercel classifies bot traffic at the edge.
 3. Security+ forwards classification data to the application through:
    - `x-vercel-bot-category`
    - `x-vercel-bot-name`
@@ -41,12 +46,9 @@ pnpm simulate
 
 ## Deploy and test real classification
 
-Deploy the app directly to Vercel, without Akamai or another reverse proxy in front of it. In the project Firewall rules:
+Deploy the app directly to Vercel, without Akamai or another reverse proxy in front of it.
 
-1. Find Bot Protection under Bot Management.
-2. Select **Log**.
-3. Review and publish the change.
-4. Enable Security+ for the project so application code receives the detailed classification headers.
+Enable Security+ for the project so application code receives the detailed classification headers.
 
 Then send test traffic:
 

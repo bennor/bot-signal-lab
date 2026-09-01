@@ -62,6 +62,16 @@ main {
   line-height: 16px;
 }
 
+.project-brand {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.project-brand img {
+  border-radius: 6px;
+}
+
 h1 {
   margin: 12px 0 16px;
   font-size: clamp(40px, 6vw, 64px);
@@ -222,6 +232,28 @@ pre {
 
 .how-it-works .section-heading p {
   max-width: 700px;
+}
+
+.resource-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.resource-links a {
+  padding: 7px 10px;
+  border: 1px solid var(--ds-gray-400);
+  border-radius: 6px;
+  color: var(--ds-gray-1000);
+  font-size: 13px;
+  line-height: 18px;
+  text-decoration: none;
+}
+
+.resource-links a:hover {
+  border-color: var(--ds-gray-600);
+  background: var(--ds-gray-100);
 }
 
 .code-sample {

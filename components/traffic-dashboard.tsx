@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import { Highlight, themes } from "prism-react-renderer";
 import { simulations, type TrafficResult } from "@/lib/traffic";
@@ -61,11 +62,14 @@ export function TrafficDashboard() {
     <main>
       <header className="masthead">
         <div>
-          <span className="eyebrow">Vercel bot classification demonstration</span>
+          <div className="project-brand">
+            <Image src="/icon.svg" alt="" width={28} height={28} priority />
+            <span className="eyebrow">Vercel bot classification demonstration</span>
+          </div>
           <h1>Bot Signal Lab</h1>
           <p className="intro">
-            Keep Bot Protection in Log mode, read Vercel&apos;s classification headers,
-            and inspect the raw values available to your application.
+            Send requests with distinct user agents, read Vercel&apos;s classification
+            headers, and inspect the raw values available to your application.
           </p>
         </div>
       </header>
@@ -86,6 +90,22 @@ export function TrafficDashboard() {
               The browser calls the inspection API directly. The other buttons make a
               server-side request with the displayed user agent.
             </p>
+            <div className="resource-links">
+              <a
+                href="https://vercel.com/docs/vercel-firewall/security-plus"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Security Plus documentation
+              </a>
+              <a
+                href="https://vercel.com/docs/bot-management#bot-visibility-and-classification-with-security-plus"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Bot category reference
+              </a>
+            </div>
           </div>
         </div>
         <div className="scenario-grid">
@@ -152,11 +172,14 @@ export function TrafficDashboard() {
           {({ className, style, tokens, getLineProps, getTokenProps }) => (
             <pre className={`${className} code-sample`} style={style}>
               {tokens.map((line, index) => (
-                <span {...getLineProps({ line })} className="code-line" key={index}>
+                <span key={`line-${index}`} {...getLineProps({ line })} className="code-line">
                   <span className="line-number">{index + 1}</span>
                   <span>
                     {line.map((token, tokenIndex) => (
-                      <span {...getTokenProps({ token })} key={tokenIndex} />
+                      <span
+                        key={`token-${index}-${tokenIndex}`}
+                        {...getTokenProps({ token })}
+                      />
                     ))}
                   </span>
                 </span>
@@ -167,9 +190,8 @@ export function TrafficDashboard() {
       </section>
 
       <footer>
-        Bot Protection should remain in Log mode for this demo. A Googlebot user agent
-        alone cannot simulate a verified crawler because Vercel also verifies network
-        or cryptographic identity.
+        A Googlebot user agent alone cannot simulate a verified crawler because Vercel
+        also verifies network or cryptographic identity.
       </footer>
     </main>
   );
