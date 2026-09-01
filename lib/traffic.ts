@@ -1,7 +1,7 @@
 export type DetectionSource =
   | "vercel-edge"
   | "demo-simulation"
-  | "local-user-agent-simulation"
+  | "user-agent-simulation"
   | "none";
 
 export type BotClassification = {
@@ -128,7 +128,7 @@ function classifyLocalUserAgent(userAgent: string): BotClassification {
 function localClassification(category: string, name: string): BotClassification {
   return {
     isBot: true,
-    source: "local-user-agent-simulation",
+    source: "user-agent-simulation",
     category,
     name,
     verified: "not_verified_locally",

@@ -17,7 +17,10 @@ export async function POST(request: NextRequest) {
   const effectiveClassification = classifyRequest(
     request.headers,
     allowSimulation,
-    process.env.NODE_ENV !== "production" ? userAgent : undefined,
+    process.env.NODE_ENV !== "production" ||
+      request.headers.get("x-demo-user-agent-simulation") === "1"
+      ? userAgent
+      : undefined,
   );
 
   const partialResult: Omit<TrafficResult, "analytics"> = {

@@ -32,6 +32,8 @@ The five buttons exercise two paths:
 - The complete `/api/traffic` response is rendered in the panel below the buttons, including the outbound user agent, classification, and GA delivery state.
 - The **How this works** section shows the Route Handler code needed to read the Vercel headers and map them into a GA event.
 
+The inspection API gives real `x-vercel-bot-*` headers priority. When those headers are unavailable, calls from `/api/simulate` use a clearly labelled `user-agent-simulation` fallback so the deployed demo remains deterministic.
+
 Vercel classification headers do not exist locally. The simulator sends clearly labelled `x-demo-bot-*` headers so the complete application and GA mapping can be demonstrated:
 
 ```bash
