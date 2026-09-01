@@ -92,18 +92,18 @@ export function TrafficDashboard() {
             </p>
             <div className="resource-links">
               <a
-                href="https://vercel.com/docs/bot-management"
+                href="https://vercel.com/docs/vercel-firewall/security-plus"
                 target="_blank"
                 rel="noreferrer"
               >
-                Bot Management documentation
+                Security Plus documentation
               </a>
               <a
-                href="https://vercel.com/docs/observability/insights#edge-requests"
+                href="https://vercel.com/docs/bot-management#bot-visibility-and-classification-with-security-plus"
                 target="_blank"
                 rel="noreferrer"
               >
-                Bot traffic in Observability
+                Bot visibility and classification categories
               </a>
             </div>
           </div>

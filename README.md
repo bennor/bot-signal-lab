@@ -6,8 +6,8 @@ This demo does not use the Vercel BotID product.
 
 ## Documentation
 
-- [Bot Management documentation](https://vercel.com/docs/bot-management)
-- [Bot traffic in Observability](https://vercel.com/docs/observability/insights#edge-requests)
+- [Security Plus documentation](https://vercel.com/docs/vercel-firewall/security-plus)
+- [Bot visibility and classification categories](https://vercel.com/docs/bot-management#bot-visibility-and-classification-with-security-plus)
 
 ## Request flow
 
