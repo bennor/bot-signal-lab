@@ -65,7 +65,7 @@ export function TrafficDashboard() {
       <header className="masthead">
         <div>
           <div className="project-brand">
-            <Image src="/icon.svg" alt="" width={28} height={28} priority />
+            <Image src="/bot-icon.svg" alt="" width={28} height={28} priority />
             <span className="eyebrow">Security Plus</span>
           </div>
           <h1>Bot Signal Lab</h1>
