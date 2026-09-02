@@ -32,7 +32,8 @@ The five buttons exercise two paths:
 
 - **Human browser** calls the in-app `/api/traffic` inspection endpoint directly.
 - **curl**, **OpenAI GPTBot**, **Googlebot claim**, and **Headless Chrome** call `/api/simulate`. That server route makes a second request to `/api/traffic` with the selected `User-Agent` override.
-- The complete `/api/traffic` response is rendered below the buttons. It contains only the user agent and genuine `x-vercel-bot-*` headers added by Vercel.
+- The complete `/api/traffic` response is rendered below the buttons. It contains the user agent, an `isBot` flag, and genuine `x-vercel-bot-*` headers added by Vercel.
+- `isBot` is `true` only when `x-vercel-bot-category` is present.
 - The **How this works** section shows the Route Handler code needed to read the Vercel headers.
 - The TypeScript example uses token-based syntax highlighting and line numbers.
 - API responses use JSON syntax highlighting and line numbers.

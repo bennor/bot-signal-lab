@@ -16,7 +16,8 @@ export async function POST(request: NextRequest) {
       return value ? [[name, value]] : [];
     }),
   );
-  const result: TrafficResult = { userAgent, botHeaders };
+  const isBot = "x-vercel-bot-category" in botHeaders;
+  const result: TrafficResult = { userAgent, isBot, botHeaders };
 
   return NextResponse.json(result, {
     status: 200,

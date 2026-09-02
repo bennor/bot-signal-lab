@@ -2,6 +2,7 @@ export type BotHeaders = Record<string, string>;
 
 export type TrafficResult = {
   userAgent: string;
+  isBot: boolean;
   botHeaders: BotHeaders;
 };
 

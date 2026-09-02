@@ -20,9 +20,11 @@ export async function POST(request: NextRequest) {
       return value ? [[name, value]] : [];
     })
   );
+  const isBot = "x-vercel-bot-category" in botHeaders;
 
   return Response.json({
     userAgent: request.headers.get("user-agent"),
+    isBot,
     botHeaders,
   });
 }`;
